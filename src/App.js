@@ -1,19 +1,10 @@
 import React, {useState} from 'react';
-import {
-    Button,
-    Col,
-    ControlLabel,
-    Form,
-    FormControl,
-    FormGroup,
-    PageHeader,
-} from 'react-bootstrap';
+import {Button, Col, ControlLabel, Form, FormControl, FormGroup, PageHeader,} from 'react-bootstrap';
 import {symbols} from 'currencyformatter.js';
 import dequal from 'dequal';
 import 'bootstrap/dist/css/bootstrap.css';
 
 import './App.css';
-import HistoryList from './HistoryList';
 import LineItemList from './LineItemList.js';
 import {saveInvoicePDF} from './PDFService.js';
 import useLocalStorage from './useLocalStorage.ts';
@@ -234,12 +225,6 @@ function App() {
                         </Col>
                     </div>
                 </div>
-            </div>
-            <div>
-                <HistoryList
-                    historyStates={historyStates}
-                    onHistoryStateClick={onHistoryStateClick}
-                />
             </div>
         </div>
     );

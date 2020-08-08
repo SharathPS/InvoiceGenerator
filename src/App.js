@@ -22,7 +22,8 @@ const currencyCodes = Object.keys(symbols);
 
 const emptyState = {
     invoiceNumber: '',
-    fromName: 'Lakshmi Readymades & Agencies,Palamaner',
+    fromName: 'Lakshmi Readymades & Agencies',
+    fromTown:'Palamaner',
     fromGst:'GSTIN:37ACBPP0224C1Z8',
     imageLogo: null,
     paymentTerms: null,

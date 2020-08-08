@@ -58,7 +58,7 @@ class LineItemList extends Component {
     renderLineItemRow(lineItem, index) {
         return (
             <Row key={index}>
-                <Col sm={7}>
+                <Col sm={5}>
                     <FormControl
                         type="text"
                         value={lineItem.description}
@@ -81,7 +81,7 @@ class LineItemList extends Component {
                         onChange={this.onLineItemMtsChange.bind(this, index)}
                     />
                 </Col>
-                <Col sm={1} style={{paddingLeft: '7px', paddingRight: '7px'}}>
+                <Col sm={2} style={{paddingLeft: '7px', paddingRight: '7px'}}>
                     <FormControl
                         type="number"
                         min={1}
@@ -89,7 +89,7 @@ class LineItemList extends Component {
                         onChange={this.onLineItemRateChange.bind(this, index)}
                     />
                 </Col>
-                <Col sm={1}>
+                <Col sm={2}>
                     {decode(
                         format(this.setDefaultValue(lineItem.mts) * this.setDefaultValue(lineItem.quantity) *
                             lineItem.rate, {
@@ -116,11 +116,11 @@ class LineItemList extends Component {
         return (
             <div>
                 <Row>
-                    <Col sm={7}>Item</Col>
+                    <Col sm={5}>Item</Col>
                     <Col sm={1}>Quantity</Col>
                     <Col sm={1}>Mts</Col>
-                    <Col sm={1}>Rate</Col>
-                    <Col sm={1}>Amount</Col>
+                    <Col sm={2}>Rate</Col>
+                    <Col sm={2}>Amount</Col>
                     <Col sm={1}/>
                 </Row>
                 {lineItemRows}

@@ -62,15 +62,22 @@ function buildHeaderInformation(params) {
           ...buildImageLogo(params),
           {
             text: params.fromName,
-            margin: [0, 30, 0, 30],
+            fontSize: 15,
+            margin: [0, 0, 0, 0],
+          },
+          {
+            text: params.fromTown,
+            fontSize: 15,
+            margin: [0, 0, 0, 0],
           },
           {
             text: params.fromGst,
-            margin: [0, 0, 0, 0],
+            fontSize: 10,
+            margin: [0, 0, 30, 0],
           },
           {
             text: 'Bill To',
-            margin: [0, 0, 0, 0],
+            margin: [0, 30, 0, 0],
           },
           {
             text: params.toName,
@@ -155,10 +162,12 @@ function buildTotal(params) {
         [
           {
             text: 'Total',
+            margin: [0, 20, 0, 0],
             alignment: 'right',
           },
           {
             text: `${total.toFixed(2)} ${params.currency}`,
+            margin: [0, 20, 0, 0],
             alignment: 'right',
           },
         ],

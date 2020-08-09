@@ -134,7 +134,7 @@ function buildLineItemsTable(params) {
       headerRows: 1,
       body: [
         [
-          'Item',
+          { text: 'Item', alignment: 'center' },
           { text: 'Quantity', alignment: 'right' },
           { text: 'Mts', alignment: 'right' },
           { text: 'Rate', alignment: 'right' },

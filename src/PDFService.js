@@ -1,225 +1,288 @@
+import decode from "./decode";
+import {format} from "currencyformatter.js";
+
 const pdfMake = window.pdfMake;
 
 export function saveInvoicePDF(params) {
-  if (params.imageLogo) {
-    console.log('imageLogo', params.imageLogo);
-    let fileReader = new FileReader();
-    fileReader.addEventListener(
-      'load',
-      onDataURLLoaded.bind(null, params, fileReader),
-      false,
-    );
-    fileReader.readAsDataURL(params.imageLogo);
-  } else {
-    createPDFFromParams(params);
-  }
+    if (params.imageLogo) {
+        console.log('imageLogo', params.imageLogo);
+        let fileReader = new FileReader();
+        fileReader.addEventListener(
+            'load',
+            onDataURLLoaded.bind(null, params, fileReader),
+            false,
+        );
+        fileReader.readAsDataURL(params.imageLogo);
+    } else {
+        createPDFFromParams(params);
+    }
 }
 
 // Private functions
 function onDataURLLoaded(params, fileReader) {
-  // Set imageLogo to data URI of file
-  params.imageLogo = fileReader.result;
-  createPDFFromParams(params);
+    // Set imageLogo to data URI of file
+    params.imageLogo = fileReader.result;
+    createPDFFromParams(params);
 }
 
 function createPDFFromParams(params) {
-  let docDefinition = buildDocDefinition(params);
-  pdfMake.createPdf(docDefinition).open();
+    let docDefinition = buildDocDefinition(params);
+    let todayDate = (new Date()).toLocaleDateString().split("/")
+    pdfMake.createPdf(docDefinition).open();
+    pdfMake.createPdf(docDefinition).download(todayDate);
+
 }
 
 function buildDocDefinition(params) {
-  let notesAndTerms = buildNotesAndTerms(params);
-  console.log('notesAndTerms', notesAndTerms);
-  return {
-    content: [
-      buildHeaderInformation(params),
-      buildLineItemsTable(params),
-      buildTotal(params),
-      ...buildNotesAndTerms(params),
-    ],
-  };
+    let notesAndTerms = buildNotesAndTerms(params);
+    console.log('notesAndTerms', notesAndTerms);
+    return {
+        content: [
+            buildHeaderInformation(params),
+            buildLineItemsTable(params),
+            buildTotal(params),
+            ...buildNotesAndTerms(params),
+        ],
+    };
 }
 
 function buildHeaderInformation(params) {
-  const optionalDataKeys = [];
-  const optionalDataValues = [];
+    const optionalDataKeys = [];
+    const optionalDataValues = [];
 
-  Object.entries({
-    Date: params.date,
-    'Payment Terms': params.paymentTerms,
-    'Due Date': params.dueDate,
-  }).forEach(([key, value]) => {
-    if (value) {
-      optionalDataKeys.push(key);
-      optionalDataValues.push(value);
-    }
-  });
+    Object.entries({
+        Date: params.date,
+        'Payment Terms': params.paymentTerms,
+        'Due Date': params.dueDate,
+    }).forEach(([key, value]) => {
+        if (value) {
+            optionalDataKeys.push(key);
+            optionalDataValues.push(value);
+        }
+    });
 
-  return {
-    columns: [
-      {
-        stack: [
-          ...buildImageLogo(params),
-          {
-            text: params.fromName,
-            fontSize: 15,
-            margin: [0, 0, 0, 0],
-          },
-          {
-            text: params.fromTown,
-            fontSize: 15,
-            margin: [0, 0, 0, 0],
-          },
-          {
-            text: params.fromGst,
-            fontSize: 10,
-            margin: [0, 0, 30, 0],
-          },
-          {
-            text: 'Bill To',
-            margin: [0, 30, 0, 0],
-          },
-          {
-            text: params.toName,
-          },
-        ],
-      },
-      {
-        stack: [
-          {
-            text: 'INVOICE',
-            fontSize: 15,
-          },
-          {
-            text: `# ${params.invoiceNumber}`,
-            fontSize: 10,
-            margin: [0, 0, 0, 30],
-          },
-          {
-            columns: [
-              {
-                width: 50,
-                text: '',
-              },
-              {
-                width: '*',
-                columns: [
-                  {
-                    stack: optionalDataKeys,
-                    alignment: 'right',
-                  },
-                  {
-                    stack: optionalDataValues,
-                    alignment: 'right',
-                  },
+    return {
+        columns: [
+            {
+                stack: [
+                    ...buildImageLogo(params),
+                    {
+                        text: params.fromName,
+                        fontSize: 15,
+                        margin: [0, 0, 0, 0],
+                    },
+                    {
+                        text: params.fromTown,
+                        fontSize: 15,
+                        margin: [0, 0, 0, 0],
+                    },
+                    {
+                        text: params.fromGst,
+                        fontSize: 10,
+                        margin: [0, 0, 30, 0],
+                    },
+                    {
+                        text: 'Bill To',
+                        margin: [0, 30, 0, 0],
+                    },
+                    {
+                        text: params.toName,
+                    },
                 ],
-              },
-            ],
-          },
+            },
+            {
+                stack: [
+                    {
+                        text: 'INVOICE',
+                        fontSize: 15,
+                    },
+                    {
+                        text: `# ${params.invoiceNumber}`,
+                        fontSize: 10,
+                        margin: [0, 0, 0, 30],
+                    },
+                    {
+                        columns: [
+                            {
+                                width: 50,
+                                text: '',
+                            },
+                            {
+                                width: '*',
+                                columns: [
+                                    {
+                                        stack: optionalDataKeys,
+                                        alignment: 'right',
+                                    },
+                                    {
+                                        stack: optionalDataValues,
+                                        alignment: 'right',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                alignment: 'right',
+            },
         ],
-        alignment: 'right',
-      },
-    ],
-    // optional space between columns
-    columnGap: 10,
-    margin: [0, 0, 0, 30],
-  };
+        // optional space between columns
+        columnGap: 10,
+        margin: [0, 0, 0, 30],
+    };
 }
 
 function buildLineItemsTable(params) {
-  let lineItemRows = params.lineItems.map(buildLineItem(params));
-  return {
-    table: {
-      widths: ['*','11%','11%','11%', '18%'],
-      headerRows: 1,
-      body: [
-        [
-          { text: 'Item', alignment: 'center' },
-          { text: 'Quantity', alignment: 'right' },
-          { text: 'Mts', alignment: 'right' },
-          { text: 'Rate', alignment: 'right' },
-          { text: 'Amount', alignment: 'right' },
-        ],
-        ...lineItemRows,
-      ],
-    },
-    layout: 'lightHorizontalLines',
-  };
+    let lineItemRows = params.lineItems.map(buildLineItem(params));
+    return {
+        table: {
+            widths: ['45%', '11%', '11%', '11%', '22%'],
+            headerRows: 1,
+            body: [
+                [
+                    {text: 'Item', alignment: 'center'},
+                    {text: 'Mts', alignment: 'right'},
+                    {text: 'Quantity', alignment: 'right'},
+                    {text: 'Rate', alignment: 'right'},
+                    {text: 'Amount', alignment: 'right'},
+                ],
+                ...lineItemRows,
+            ],
+        },
+        layout: 'lightHorizontalLines',
+    };
 }
 
-function setDefaultValue(value){
-  return value === 0 ? 1: value;
+function setDefaultValue(value) {
+    return value === 0 ? 1 : value;
+}
+
+function getLineItemsTotalWithGst(total) {
+    return (2.5 / 100) * total;
 }
 
 function buildTotal(params) {
-  let total = params.lineItems.reduce((sum, lineItem) => {
-    return sum + setDefaultValue(lineItem.quantity) * lineItem.rate * setDefaultValue(lineItem.mts);
-  }, 0);
-  return {
-    table: {
-      widths: ['*', '18%'],
-      body: [
-        [
-          {
-            text: 'Total',
-            margin: [0, 20, 0, 0],
-            alignment: 'right',
-          },
-          {
-            text: `${total.toFixed(2)} ${params.currency}`,
-            margin: [0, 20, 0, 0],
-            alignment: 'right',
-          },
-        ],
-      ],
-    },
-    layout: 'noBorders',
-    margin: [0, 0, 0, 30],
-  };
+    let total = params.lineItems.reduce((sum, lineItem) => {
+        return sum + lineItem.rate * setDefaultValue(lineItem.mts);
+    }, 0);
+    let cgst = getLineItemsTotalWithGst(total);
+    let sgst = getLineItemsTotalWithGst(total);
+    let roundedTotal = Math.round(total + cgst + sgst);
+    return {
+        table: {
+            widths: ['*', '18%'],
+            body: [
+                [
+                    {
+                        text: 'Total Before Tax:',
+                        margin: [0, 30, 0, 0],
+                        alignment: 'right',
+                    },
+                    {
+                        text: `${total.toFixed(2)} ${params.currency}`,
+                        margin: [0, 30, 0, 0],
+                        alignment: 'right',
+                    },
+                ],
+                [
+                    {
+                        text: 'CGST : 2.5%:',
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                    {
+                        text: `${cgst.toFixed(2)} ${params.currency}`,
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                ],
+                [
+                    {
+                        text: 'SGST : 2.5%:',
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                    {
+                        text: `${sgst.toFixed(2)} ${params.currency}`,
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                ],
+                [
+                    {
+                        text: 'Total With Tax:',
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                    {
+                        text: `${roundedTotal.toFixed(2)} ${params.currency}`,
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                ],
+                [
+                    {
+                        text: '',
+                        margin: [0, 80, 0, 0],
+                        alignment: 'right',
+                    },
+                    {
+                        text: 'Proprietor',
+                        margin: [0, 80, 0, 0],
+                        alignment: 'right',
+                    },
+                ],
+            ],
+        },
+        layout: 'noBorders',
+        margin: [0, 0, 0, 30],
+    };
 }
 
 // Returns an array
 function buildNotesAndTerms(params) {
-  let result = [];
-  console.log('params', params);
-  if (params.notes) {
-    result = result.concat([
-      { text: 'Notes' },
-      { text: params.notes, margin: [0, 0, 0, 30] },
-    ]);
-  }
-  if (params.terms) {
-    result = result.concat([
-      { text: 'Terms' },
-      { text: params.terms, margin: [0, 0, 0, 30] },
-    ]);
-  }
-  return result;
+    let result = [];
+    console.log('params', params);
+    if (params.notes) {
+        result = result.concat([
+            {text: 'Notes'},
+            {text: params.notes, margin: [0, 0, 0, 30]},
+        ]);
+    }
+    if (params.terms) {
+        result = result.concat([
+            {text: 'Terms'},
+            {text: params.terms, margin: [0, 0, 0, 30]},
+        ]);
+    }
+    return result;
 }
 
+// decode(format(lineItemsTotal, {currency: this.props.currency}))
+
 function buildLineItem(params) {
-  return function buildLineItemCurried(lineItem) {
-    return [
-      lineItem.description,
-      { text: String(lineItem.quantity), alignment: 'right' },
-      { text: String(lineItem.mts), alignment: 'right' },
-      { text: `${lineItem.rate}`, alignment: 'right' },
-      {
-        text: `${(lineItem.quantity * lineItem.rate * lineItem.mts).toFixed(2)} ${
-          params.currency
-        }`,
-        alignment: 'right',
-      },
-    ];
-  };
+    return function buildLineItemCurried(lineItem) {
+        return [
+            lineItem.description,
+            {text: String(lineItem.mts), alignment: 'right'},
+            {text: String(lineItem.quantity), alignment: 'right'},
+            {text: `${lineItem.rate}`, alignment: 'right'},
+            {
+                text: `${(lineItem.rate * setDefaultValue(lineItem.mts)).toFixed(2)} ${
+                    params.currency
+                }`,
+                alignment: 'right',
+            },
+        ];
+    };
 }
 
 function buildImageLogo(params) {
-  let result = [];
-  if (params.imageLogo) {
-    result.push({
-      image: params.imageLogo,
-    });
-  }
-  return result;
+    let result = [];
+    if (params.imageLogo) {
+        result.push({
+            image: params.imageLogo,
+        });
+    }
+    return result;
 }

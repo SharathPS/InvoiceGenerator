@@ -14,8 +14,8 @@ const currencyCodes = Object.keys(symbols);
 const emptyState = {
     invoiceNumber: '',
     fromName: 'Lakshmi Readymades & Agencies',
-    fromTown:'Palamaner',
-    fromGst:'GSTIN:37ACBPP0224C1Z8',
+    fromTown: 'Palamaner',
+    fromGst: 'GSTIN:37ACBPP0224C1Z8',
     imageLogo: null,
     paymentTerms: null,
     currency: 'INR',
@@ -153,14 +153,27 @@ function App() {
                             <Col componentClass={ControlLabel} sm={2}>
                                 Invoice #
                             </Col>
-                            <Col sm={10}>
+                            <Col sm={2}>
                                 <FormControl
                                     type="text"
                                     value={editedInvoice.invoiceNumber}
                                     onChange={onFieldValueChange.bind(this, 'invoiceNumber')}
                                 />
                             </Col>
+                            <FormGroup controlId="date">
+                                <Col componentClass={ControlLabel} sm={2}>
+                                    Date
+                                </Col>
+                                <Col sm={3}>
+                                    <FormControl
+                                        type="date"
+                                        value={editedInvoice.date}
+                                        onChange={onFieldValueChange.bind(this, 'date')}
+                                    />
+                                </Col>
+                            </FormGroup>
                         </FormGroup>
+
                         {/*                        <FormGroup controlId="imageLogo">
                             <Col componentClass={ControlLabel} sm={2}>
                                 Logo
@@ -179,7 +192,7 @@ function App() {
                             <Col componentClass={ControlLabel} sm={2}>
                                 Bill To
                             </Col>
-                            <Col sm={10}>
+                            <Col sm={5}>
                                 <FormControl
                                     componentClass="textarea"
                                     rows="3"
@@ -189,18 +202,7 @@ function App() {
                                 />
                             </Col>
                         </FormGroup>
-                        <FormGroup controlId="date">
-                            <Col componentClass={ControlLabel} sm={2}>
-                                Date
-                            </Col>
-                            <Col sm={3}>
-                                <FormControl
-                                    type="date"
-                                    value={editedInvoice.date}
-                                    onChange={onFieldValueChange.bind(this, 'date')}
-                                />
-                            </Col>
-                        </FormGroup>
+
                         <LineItemList
                             lineItems={editedInvoice.lineItems}
                             currency={editedInvoice.currency}

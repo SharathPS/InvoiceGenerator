@@ -47,12 +47,16 @@ class LineItemList extends Component {
 
     getLineItemsTotal(lineItems) {
         return lineItems.reduce((sum, lineItem) => {
-            return sum + this.setDefaultValue(lineItem.quantity) * lineItem.rate * this.setDefaultValue(lineItem.mts);
+            return sum + lineItem.rate * this.setDefaultValue(lineItem.mts);
         }, 0);
     }
 
-    setDefaultValue(value){
-        return value === 0 ? 1: value;
+    getLineItemsTotalWithGst(total) {
+        return (2.5 / 100) * total;
+    }
+
+    setDefaultValue(value) {
+        return value === 0 ? 1 : value;
     }
 
     renderLineItemRow(lineItem, index) {
@@ -69,16 +73,16 @@ class LineItemList extends Component {
                     <FormControl
                         type="number"
                         min={1}
-                        value={lineItem.quantity}
-                        onChange={this.onLineItemQuantityChange.bind(this, index)}
+                        value={lineItem.mts}
+                        onChange={this.onLineItemMtsChange.bind(this, index)}
                     />
                 </Col>
                 <Col sm={1} style={{paddingLeft: '7px', paddingRight: '7px'}}>
                     <FormControl
                         type="number"
                         min={1}
-                        value={lineItem.mts}
-                        onChange={this.onLineItemMtsChange.bind(this, index)}
+                        value={lineItem.quantity}
+                        onChange={this.onLineItemQuantityChange.bind(this, index)}
                     />
                 </Col>
                 <Col sm={2} style={{paddingLeft: '7px', paddingRight: '7px'}}>
@@ -91,7 +95,7 @@ class LineItemList extends Component {
                 </Col>
                 <Col sm={2}>
                     {decode(
-                        format(this.setDefaultValue(lineItem.mts) * this.setDefaultValue(lineItem.quantity) *
+                        format(this.setDefaultValue(lineItem.mts) *
                             lineItem.rate, {
                             currency: this.props.currency
                         })
@@ -113,29 +117,49 @@ class LineItemList extends Component {
         let lineItems = this.props.lineItems;
         let lineItemRows = lineItems.map(this.renderLineItemRow.bind(this));
         let lineItemsTotal = this.getLineItemsTotal(lineItems);
+        let totalWithCgst = this.getLineItemsTotalWithGst(lineItemsTotal);
+        let totalWithSgst = this.getLineItemsTotalWithGst(lineItemsTotal);
+        let totalWithTax = Math.round(lineItemsTotal + totalWithCgst + totalWithSgst);
         return (
             <div>
                 <Row>
                     <Col sm={5}>Item</Col>
-                    <Col sm={1}>Quantity</Col>
                     <Col sm={1}>Mts</Col>
+                    <Col sm={1}>Quantity</Col>
                     <Col sm={2}>Rate</Col>
                     <Col sm={2}>Amount</Col>
                     <Col sm={1}/>
                 </Row>
                 {lineItemRows}
                 <Row>
-                    <Col sm={7}>
+                    <Col sm={12}>
                         <Button bsStyle="success" onClick={this.props.onLineItemAddClick}>
                             + Add Line Item
                         </Button>
                     </Col>
+                </Row>
+                <Row>
+                    <Col sm={7}/>
+                    <Col sm={3}>Total Value Before Tax</Col>
+                    <Col sm={1}>{decode(format(lineItemsTotal, {currency: this.props.currency}))}</Col>
                     <Col sm={1}/>
+                </Row>
+                <Row>
+                    <Col sm={7}/>
+                    <Col sm={3}>CGST : 2.5%</Col>
+                    <Col sm={1}>{decode(format(totalWithCgst, {currency: this.props.currency}))}</Col>
                     <Col sm={1}/>
-                    <Col sm={1}>Total</Col>
-                    <Col sm={1}>
-                        {decode(format(lineItemsTotal, {currency: this.props.currency}))}
-                    </Col>
+                </Row>
+                <Row>
+                    <Col sm={7}/>
+                    <Col sm={3}>SGST : 2.5%</Col>
+                    <Col sm={1}>{decode(format(totalWithSgst, {currency: this.props.currency}))}</Col>
+                    <Col sm={1}/>
+                </Row>
+                <Row>
+                    <Col sm={7}/>
+                    <Col sm={3}>Total Value After Tax</Col>
+                    <Col sm={1}>{decode(format(totalWithTax, {currency: this.props.currency}))}</Col>
                     <Col sm={1}/>
                 </Row>
             </div>

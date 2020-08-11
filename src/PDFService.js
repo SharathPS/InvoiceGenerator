@@ -141,9 +141,9 @@ function buildLineItemsTable(params) {
             body: [
                 [
                     {text: 'Item', alignment: 'center'},
-                    {text: 'Mts', alignment: 'right'},
                     {text: 'Quantity', alignment: 'right'},
                     {text: 'Rate', alignment: 'right'},
+                    {text: 'Mts', alignment: 'right'},
                     {text: 'Amount', alignment: 'right'},
                 ],
                 ...lineItemRows,
@@ -154,7 +154,7 @@ function buildLineItemsTable(params) {
 }
 
 function setDefaultValue(value) {
-    return value === 0 ? 1 : value;
+    return (value == 0||value == ""||value == undefined) ? 1 : value;
 }
 
 function getLineItemsTotalWithGst(total) {
@@ -165,9 +165,11 @@ function buildTotal(params) {
     let total = params.lineItems.reduce((sum, lineItem) => {
         return sum + lineItem.rate * setDefaultValue(lineItem.mts);
     }, 0);
-    let cgst = getLineItemsTotalWithGst(total);
-    let sgst = getLineItemsTotalWithGst(total);
-    let roundedTotal = Math.round(total + cgst + sgst);
+    let discountedRate = total -(total * 0.05); // 5% reduced
+    let cgst = getLineItemsTotalWithGst(discountedRate);
+    let sgst = getLineItemsTotalWithGst(discountedRate);
+    let roundedTotal = Math.round(discountedRate + cgst + sgst);
+
     return {
         table: {
             widths: ['*', '18%'],
@@ -181,6 +183,18 @@ function buildTotal(params) {
                     {
                         text: `${total.toFixed(2)} ${params.currency}`,
                         margin: [0, 30, 0, 0],
+                        alignment: 'right',
+                    },
+                ],
+                [
+                    {
+                        text: 'Discount-5%:',
+                        margin: [0, 10, 0, 0],
+                        alignment: 'right',
+                    },
+                    {
+                        text: `${discountedRate.toFixed(2)} ${params.currency}`,
+                        margin: [0, 10, 0, 0],
                         alignment: 'right',
                     },
                 ],
@@ -264,9 +278,9 @@ function buildLineItem(params) {
     return function buildLineItemCurried(lineItem) {
         return [
             lineItem.description,
-            {text: String(lineItem.mts), alignment: 'right'},
             {text: String(lineItem.quantity), alignment: 'right'},
             {text: `${lineItem.rate}`, alignment: 'right'},
+            {text: String(lineItem.mts), alignment: 'right'},
             {
                 text: `${(lineItem.rate * setDefaultValue(lineItem.mts)).toFixed(2)} ${
                     params.currency

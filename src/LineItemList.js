@@ -56,7 +56,7 @@ class LineItemList extends Component {
     }
 
     setDefaultValue(value) {
-        return value === 0 ? 1 : value;
+        return (value == 0||value == ""||value == undefined) ? 1 : value;
     }
 
     renderLineItemRow(lineItem, index) {
@@ -73,14 +73,6 @@ class LineItemList extends Component {
                     <FormControl
                         type="number"
                         min={1}
-                        value={lineItem.mts}
-                        onChange={this.onLineItemMtsChange.bind(this, index)}
-                    />
-                </Col>
-                <Col sm={1} style={{paddingLeft: '7px', paddingRight: '7px'}}>
-                    <FormControl
-                        type="number"
-                        min={1}
                         value={lineItem.quantity}
                         onChange={this.onLineItemQuantityChange.bind(this, index)}
                     />
@@ -91,6 +83,14 @@ class LineItemList extends Component {
                         min={1}
                         value={lineItem.rate}
                         onChange={this.onLineItemRateChange.bind(this, index)}
+                    />
+                </Col>
+                <Col sm={1} style={{paddingLeft: '7px', paddingRight: '7px'}}>
+                    <FormControl
+                        type="number"
+                        min={1}
+                        value={lineItem.mts}
+                        onChange={this.onLineItemMtsChange.bind(this, index)}
                     />
                 </Col>
                 <Col sm={2}>
@@ -117,16 +117,17 @@ class LineItemList extends Component {
         let lineItems = this.props.lineItems;
         let lineItemRows = lineItems.map(this.renderLineItemRow.bind(this));
         let lineItemsTotal = this.getLineItemsTotal(lineItems);
-        let totalWithCgst = this.getLineItemsTotalWithGst(lineItemsTotal);
-        let totalWithSgst = this.getLineItemsTotalWithGst(lineItemsTotal);
-        let totalWithTax = Math.round(lineItemsTotal + totalWithCgst + totalWithSgst);
+        let discountedRate = lineItemsTotal - (lineItemsTotal * 0.05);
+        let totalWithCgst = this.getLineItemsTotalWithGst(discountedRate);
+        let totalWithSgst = this.getLineItemsTotalWithGst(discountedRate);
+        let totalWithTax = Math.round(discountedRate + totalWithCgst + totalWithSgst);
         return (
             <div>
                 <Row>
                     <Col sm={5}>Item</Col>
-                    <Col sm={1}>Mts</Col>
                     <Col sm={1}>Quantity</Col>
                     <Col sm={2}>Rate</Col>
+                    <Col sm={1}>Mts</Col>
                     <Col sm={2}>Amount</Col>
                     <Col sm={1}/>
                 </Row>
@@ -142,6 +143,12 @@ class LineItemList extends Component {
                     <Col sm={7}/>
                     <Col sm={3}>Total Value Before Tax</Col>
                     <Col sm={1}>{decode(format(lineItemsTotal, {currency: this.props.currency}))}</Col>
+                    <Col sm={1}/>
+                </Row>
+                <Row>
+                    <Col sm={7}/>
+                    <Col sm={3}>Discount : 5%</Col>
+                    <Col sm={1}>{decode(format(discountedRate, {currency: this.props.currency}))}</Col>
                     <Col sm={1}/>
                 </Row>
                 <Row>
